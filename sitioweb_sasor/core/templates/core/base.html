@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        
+        <title>{% block title %}{% endblock %}</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+        <link rel="stylesheet" href="{% static 'core/css/bootstrap.min.css' %}">
+        <link rel="stylesheet" href="{% static 'core/css/bootstrap-theme.min.css' %}">
+        <link rel="stylesheet" href="{% static 'core/css/fontAwesome.css' %}">
+        <link rel="stylesheet" href="{% static 'core/css/hero-slider.css' %}">
+        <link rel="stylesheet" href="{% static 'core/css/owl-carousel.css' %}">
+        <link rel="stylesheet" href="{% static 'core/css/templatemo-style.css' %}">
+        <link href="{% static 'core/css/MyCssStyle.css' %}" rel="stylesheet">
+        {% block css_hijo %}
+        {% endblock css_hijo%}
+
+        <link href="https://fonts.googleapis.com/css?family=Spectral:200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+
+        <script src="{% static 'core/js/vendor/modernizr-2.8.3-respond-1.4.2.min.js' %}"></script>
+
+        <style>
+            #titulo_sasor {
+                font-family: 'Spectral', serif;
+                text-decoration: none;
+                font-size: 44px;
+                color: #121212;
+                font-style: italic;
+                text-align: center;
+                width: 100%;
+                position: relative;
+                padding: 40px 0px;
+                height: auto!important;
+            }
+        </style>
+    </head>
+
+<body>
+    <!-- HEADER EN COMÚN EN TODAS LAS PÁGINAS HIJO. -->
+    <div class="header">
+        <div class="container">
+            <div style="border-bottom: 1px solid #d8deed;">
+                <a href="{% url 'core_app:Home' %}" id="titulo_sasor">Café Sasor</a>
+            </div>
+            <nav class="navbar navbar-inverse" role="navigation">
+                <div class="navbar-header">
+                    <button type="button" id="nav-toggle" class="navbar-toggle" data-toggle="collapse" data-target="#main-nav">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                </div>
+                <!--/.navbar-header-->
+                <div id="main-nav" class="collapse navbar-collapse">
+                    <ul class="nav navbar-nav">
+                        <li><a href="{% url 'core_app:Home' %}">Inicio</a></li>
+                        <li><a href="{% url 'alimentos_app:MenuView' %}">Menú del Día</a></li>
+                        <li><a href="{% url 'reservacion_app:MesaReservacion' %}">Reserva una Mesa</a></li>
+                        <li><a href="{% url 'contacto_app:Contacto' %}">Contactanos</a></li>
+                    </ul>
+                </div>
+                <!--/.navbar-collapse-->
+            </nav>
+            <!--/.navbar-->
+        </div>
+        <!--/.container-->
+    </div>
+    <!--/.header-->
+    {% if request.path == '/' %} <!-- En caso de que estemos solicitando la página de "Inicio". Es decir, la vista "Home". -->
+        {% include 'core/alerts_django.html' %} <!-- En caso de que se haya hecho un pedido de comida, al ser redirigidos a la página de
+        inicio, mostraremos una alerta con django. Estas solo apereceran en estos casos. -->
+        {% block banner %}
+        {% endblock banner %}
+    {% else %}  <!-- En caso de que estemos solicitando cualquier otra vista. -->
+        {% block heading %}
+        {% endblock heading %}
+    {% endif %}
+
+    <!-- CONTENDIO DE LAS PÁGINAS HIJO. -->
+    {% block content %}
+    {% endblock %}
+
+    <!-- FOOTER. -->
+    <footer style="background-attachment: fixed;" id="footer_sasor">
+        <div class="container">
+            <div class="row" style="display: flex; justify-content: center;" id="row_footer">
+                <div class="col-md-4">
+                    <ul class="social-icons">
+                        <li><a href="#/" target="_self"><i class="fa fa-facebook"></i></a></li>
+                        <li><a href="#/"><i class="fa fa-twitter"></i></a></li>
+                        <li><a href="#/"><i class="fa fa-linkedin"></i></a></li>
+                        <li><a href="#/"><i class="fa fa-rss"></i></a></li>
+                        <li><a href="#/"><i class="fa fa-dribbble"></i></a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT PRINCIPAL (DEBE ESTAR CONTENIDO EN LA PÁG PRINCIPAL, COMO EN CUALQUIER PÁGINA HIJO). -->
+    {% block JSscripts %}
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="{% static "core/js/vendor/jquery-1.11.2.min.js" %}"><\/script>')</script>
+
+    <script src="{% static 'core/js/vendor/bootstrap.min.js' %}"></script>
+
+    <script src="{% static 'core/js/plugins.js' %}"></script>
+    <script src="{% static 'core/js/main.js' %}"></script>
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+    $(document).ready(function() {
+        // navigation click actions
+        $('.scroll-link').on('click', function(event){
+            event.preventDefault();
+            var sectionID = $(this).attr("data-id");
+            scrollToID('#' + sectionID, 750);
+        });
+        // scroll to top action
+        $('.scroll-top').on('click', function(event) {
+            event.preventDefault();
+            $('html, body').animate({scrollTop:0}, 'slow');         
+        });
+        // mobile nav toggle
+        $('#nav-toggle').on('click', function (event) {
+            event.preventDefault();
+            $('#main-nav').toggleClass("open");
+        });
+    });
+    // scroll function
+    function scrollToID(id, speed){
+        var offSet = 0;
+        var targetOffset = $(id).offset().top - offSet;
+        var mainNav = $('#main-nav');
+        $('html,body').animate({scrollTop:targetOffset}, speed);
+        if (mainNav.hasClass("open")) {
+            mainNav.css("height", "1px").removeClass("in").addClass("collapse");
+            mainNav.removeClass("open");
+        }
+    }
+    if (typeof console === "undefined") {
+        console = {
+            log: function() { }
+        };
+    }
+    </script>
+    <script>
+        var url_actual = window.location.href;
+        var url_reservacion = "{% url 'reservacion_app:MesaReservacion' %}";
+        if(localStorage.getItem("BANDERA_PAYPAL") &&  url_actual.search(url_reservacion) == -1){
+            localStorage.clear();
+        };
+    </script>
+    {% endblock JSscripts %}
+
+    <!-- JS de páginas hijo: -->
+    {% block JSpagsHijos %}
+    {% endblock JSpagsHijos %}
+    
+</body>
+
+</html>

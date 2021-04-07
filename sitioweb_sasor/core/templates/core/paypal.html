@@ -1,0 +1,144 @@
+{% extends 'core/base.html' %}
+{% load new_filters %}
+
+{% block title %}PayPal Smart Payment Buttons Integration{% endblock %}
+
+{% block content %}
+<style>
+    p {
+        text-align: center;
+        margin: 30px 0;
+        font-size: 16px;
+    }
+    @media screen and (max-width: 420px){
+        p {
+            text-align: justify;
+        }
+    }
+</style>
+<div style="padding: 15px;">
+    <h1 style="text-align: center;">Pagos PayPal</h1>
+    <p>El costo de su reservación es de <span style="color:red;">${{Costo_Reservacion|replace_commas}} pesos</span>, por lo que para finalizar la
+        reservación, da click en el método de pago que prefieras:</p>
+
+    <!-- Set up a container element for the button -->
+    <div id="smart-button-container">
+        <div style="text-align: center;">
+          <div id="paypal-button-container"></div>
+        </div>
+    </div>
+
+    <p>Para cualquier duda relacionada con su reservación, favor de comunicarse al <a href="tel:5558230198">(55)58230198</a> ¡Bon Appetit :)!</p>
+</div>
+{% endblock content %}
+
+{% block JSpagsHijos%}
+    <script>
+        if(localStorage.getItem("Emails_No_Validos")){
+            window.location.replace("{% url 'reservacion_app:MesaReservacion' %}");
+            localStorage.removeItem("Emails_No_Validos");
+        };
+    </script>
+
+    <!-- Include the PayPal JavaScript SDK -->
+    <!-- PAYPAL REAL: -->
+    <!-- <script src="https://www.paypal.com/sdk/js?client-id=AU7xOW4COPPiEtwa0e9gtpq7tinkJoAALUiSbzKBge5763VQxGVqx-QcoytQ8Z5XlVbaabiWQzeNP4TO&currency=MXN&disable-funding=card"></script> -->
+    <!-- PAYPAL SANDBOX: -->
+    <script src="https://www.paypal.com/sdk/js?client-id=Ad9-OlEen6Pmng0TI_kCb2uqNplQxhvAFrRDQjGIDklRy3M9jRcRd6sEMq7Se5M9MUNDjukHUqxYZ5_t&currency=MXN" data-sdk-integration-source="button-factory"></script>
+    
+    <script>
+
+        var total = "{{Costo_Reservacion}}"  // Costo de la reservación en PESOS MEXICANOS.
+        var url_to_be_redirected = "{% url 'core_app:Home' %}"  // Una vez se haya realizado el pago, y se haya desplegado el prompt "alert", con
+        // el mensaje de "Transacción Completada con Éxito por: <nombre_de_la_cuenta>", se nos mandará directamente a la página de INICIO.
+
+        // Creating a token to send the "POST" request:
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+        //////////////////////////////////////////////////////////////////
+
+        function completeOrder(){
+            var url = "{% url 'reservacion_app:Pagos' %}"
+
+            var Nombre = "{{Nombre}}"
+            var Dia = "{{Dia}}"
+            var Numero_Personas = "{{Numero_Personas}}"
+            var Email = "{{Email}}"
+            var Horario = "{{Horario}}"
+            var Celular = "{{Celular}}"
+            var Mesas_a_Ocupar = "{{Mesas_a_Ocupar}}"
+            var MesasIndividuales = "{{MesasIndividuales}}"
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
+                body: JSON.stringify({"Nombre": Nombre, "Dia": Dia, "Numero_Personas": Numero_Personas, "Email": Email, "Celular": Celular, 
+                "Horario": Horario, "Costo": total, "Mesas_a_Ocupar": Mesas_a_Ocupar, "MesasIndividuales": MesasIndividuales})
+            })
+        }
+
+        // Render the PayPal button into #paypal-button-container
+        paypal.Buttons({
+
+            style: {
+                shape: 'rect',
+                color: 'gold',
+                layout: 'vertical',
+                label: 'paypal',
+                },
+
+            // Set up the transaction
+            createOrder: function(data, actions) {
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            value: total
+                        }
+                    }]
+                    
+                });
+            },
+
+            // Finalize the transaction
+            onApprove: function(data, actions) {
+                return actions.order.capture().then(async function(details) {
+                    // Show a success message to the buyer
+                    completeOrder()
+                    alert('¡TRANSACCIÓN COMPLETADA CON ÉXITO!\nGracias por reservar con nosotros.\
+                    \nEN LOS PRÓXIMOS MINUTOS RECIBIRÁ UN CORREO CON LOS DATOS DE SU RESERVACIÓN :)');
+                    localStorage.clear();  // Limpiamos el "Almacenamiento Local", ya que paypal crea un diccionario en donde guarda los datos.
+                    window.location.replace(url_to_be_redirected)  // Nos redireccionamos directamente a la vista "Home".
+                });
+            },
+
+            onError: function(err) { // En caso de que la transacción no se haya realizado de forma correcta.
+                alert("Algo salio mal durante la transacción. Serás redirigido a la página de inicio.")
+                alert("Recuerda que NO SE TE HA COBRADO NINGÚN CARGO. Por favor realiza nuevamente la reservación.")
+                localStorage.clear();
+                window.location.replace(url_to_be_redirected)  // Nos redireccionamos directamente a la vista "Home".
+                console.log(err);
+            },
+
+        }).render('#paypal-button-container');
+    </script>
+    <script>
+        localStorage.setItem("BANDERA_PAYPAL", 1);
+    </script>
+{% endblock JSpagsHijos %}

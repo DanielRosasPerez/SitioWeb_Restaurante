@@ -1,0 +1,53 @@
+#carrito_contenedor {
+    display: flex;  
+    background-color: #ffa600;
+    border-radius: 15px;
+    width: 150px;
+    position: fixed;
+    z-index: 1;
+    padding: 0% 0.5%;
+}
+
+/* #carrito_contenedor {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #ffa600;
+    width: 150px;
+    border-radius: 15px;
+    padding: 0% 5%;
+    position: fixed;
+} */
+
+#carrito_contenedor:hover {
+    background-color: cornflowerblue;
+    transition: all 0.5s 0s ease-in-out;
+}
+
+#canasta {
+    font-size: 14px;
+    width: 90px;
+}
+
+#cantidad_canasta {
+    padding-right: 5%;
+    color: snow;
+    font-size: 18px;
+}
+
+@media screen and (min-width: 1900px){
+    #carrito_contendor {
+        transform: translateX(-329px);
+    }
+}
+
+@media screen and (max-width: 420px){
+    #carrito_contenedor:active{
+        background-color: rgb(214, 0, 14);
+        transition: all 0s 0s ease-in-out;
+    }
+
+    #carrito_contenedor {
+        transform: translate(-16px, -280px);
+    }
+}

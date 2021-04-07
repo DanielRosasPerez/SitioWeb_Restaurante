@@ -1,0 +1,28 @@
+{% extends 'core/base.html' %}
+
+{% load static %}
+
+{% block content %}
+<style>
+    h3, h4 {
+        text-align: justify;
+        margin-bottom: 15px;
+    }
+    p {
+        text-align: justify;
+        font-size: 18px;
+        color:steelblue;
+        font-weight: bold;
+    }
+    a {
+        color:red;
+    }
+</style>
+<div style="padding: 15px;">
+    <h3>Lo sentimos, son demasiadas las personas que desea incluir en su reservación. :(!</h3>
+    <h3>De momento, ¡Soportamos (con las mesas juntas), <b style="color:red;">{{Max_No_Personas.mesas_juntas}}</b> personas cada hora como máximo!</h3>
+    <h3>Por otro lado, ¡Soportamos (con las mesas separadas), <b style="color:red">{{Max_No_Personas.mesas_separadas}}</b> personas cada hora como máximo!</h3>
+    <p>Da click en este <a href="{% url 'reservacion_app:MesaReservacion' %}">enlace</a> para volver a realizar una nueva reservación.</p>
+    <img src="{% static 'core/img/moras_mantel.jpg' %}" width="100%" height="100%">
+</div>
+{% endblock content%}

@@ -1,0 +1,79 @@
+{% extends 'core/base.html' %}
+
+{% load static %}
+
+{% block css_hijo %}
+<link href="{% static 'ordenes_y_pedidos/css/canasta_styles.css' %}" rel="stylesheet"/>
+{% endblock css_hijo %}
+
+{% block content %}
+<section class="container content-section">
+    <h2 class="section-header">Canasta</h2>
+    <!-- ROWS' NAMES: -->
+    <div class="cart-row">
+        <span class="cart-item cart-header cart-column">Item</span>
+        <span class="cart-price cart-header cart-column">Precio</span>
+        <span class="cart-quantity cart-header cart-column">Cantidad</span>
+    </div>
+    <!-- ITEMS: -->
+    <div class="cart-items">
+        <!-- AQUÍ VAN LOS ITEMS AÑADIDOS AL CARRITO. ESTOS SE AGREGARÁN MEDIANTE JS. -->
+    </div>
+    <div class="cart-total">
+        <strong class="cart-total-title">Total</strong>
+        <span class="cart-total-price" style="color:red; font-size: 1.5em;">$0</span>
+    </div>
+    <p style="color:red; font-size:20px; text-align: justify; margin-top: 8%; font-weight: bold;">
+        Nota:<br>Por favor, se serio con tus pedidos. Como establecimiento, evitamos el uso de métodos de pago por internet para este servicio. 
+        De esta forma, facilitamos el proceso. ¡Muchas Gracias! :)
+    </p>
+    <button class="btn btn-primary btn-purchase" type="button">ORDENAR</button>
+</section>
+{% endblock %}
+
+{% block JSpagsHijos %}
+<script src="{% static 'core/js/canasta.js' %}" asyn></script> <!-- HACEMOS USO DEL MISMO ARCHIVO "JS" QUE ESTA CONECTADO AL "menu.html",
+YA QUE LOS DATOS LOS ESTAMOS OBTENIENDO DEL "ALMACENAMIENTO LOCAL", POR LO QUE PODEMOS REALIZAR AHÍ MISMO LA LÓGICA. -->
+
+<script>
+    let elementos_en_carrito = document.getElementsByClassName("cart-items")[0].children // Bandera para saber si la clase "car-items"
+    // contiene elementos del carrito desplegados.
+    if (elementos_en_carrito.length == 0){  // En caso de que no haya elementos desplegados (lo que significa que la canasta esta vacía),
+        // el botón de "ORDENAR" se deshabilitará.
+        document.getElementsByClassName('btn-purchase')[0].disabled = true;
+    }
+</script>
+
+<script>
+document.getElementsByClassName('btn-purchase')[0].addEventListener('click', OrdenCompletada);  // Le añadimos un evento al botón ORDEN para 
+// finalizar con la misma una vez lo deseemos.
+
+function OrdenCompletada(){
+
+    var verificacion = false
+    var casillas_cantidad = document.getElementsByClassName("cart-quantity-input")
+    for (var i = 0; i < casillas_cantidad.length; i++){
+        if (isNaN(casillas_cantidad[i].value) || casillas_cantidad[i].value <= 0 || casillas_cantidad[i].value == false){
+            verificacion = true
+        }
+    }
+
+    if (verificacion) {
+        alert("Verifica que no hayas dejando ninguna casilla vacía.")
+    } else {
+        GuardarDatosCanasta();
+        document.getElementsByClassName('cart-total-price')[0].innerText = '$0';
+
+        var cartItems = document.getElementsByClassName('cart-items')[0];
+        while (cartItems.hasChildNodes()) {
+            cartItems.removeChild(cartItems.firstChild)
+        }
+        window.location.replace("{% url 'ordenes_y_pedidos_app:CuestionarioPedido' %}")  // Redireccionamos al cuestionario del pedido.
+    }
+};
+</script>
+
+<script>
+    window.onpopstate = function() {window.location.replace("{% url 'alimentos_app:MenuView' %}#desayuno");}; history.pushState({}, '');;
+</script>
+{% endblock %}

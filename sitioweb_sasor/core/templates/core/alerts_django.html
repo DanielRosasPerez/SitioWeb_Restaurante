@@ -1,0 +1,33 @@
+{% if messages %}
+    <ul class="messages" id="msg">
+        {% for message in messages %}
+        <li {% if message.tags %} class="alert alert-{{message.tags}}" style="margin-bottom: 0; text-align: center" {% endif %}>{{message}}</li>
+        {% endfor %}
+    </ul>
+{% block JSpagsHijos %}
+<!-- <script>
+    setTimeout(function(){
+        if ($("#msg").length > 0){
+            $("#msg").remove();
+        }
+    }, 10000)  // Tiempo en "ms".
+</script> -->
+
+<script>
+    if (document.readyState == 'loading') {
+    document.addEventListener('DOMContentLoaded', ready);
+    } else {
+        ready();
+    }
+    function ready(){
+        CrearPedido();  // Esta función se encuentra declarada dentro de los tags "script" en "inicio.html".
+        localStorage.clear();  // Terminando de mandar la información a la BD, se limpia el "almacenamiento local".
+        history.pushState({}, '');
+        localStorage.setItem('EVITAR_REGRESO_A_CUESTIONARIO', 1);
+    }
+
+    // NOTA: POR ALGUNA RAZÓN, NO SE PUEDE DECLARAR DE MANERA FORMAL LA ETIQUETA "script" EN LOS COMENTARIOS PORQUE APARECEN ERRORES.
+    
+</script>
+{% endblock JSpagsHijos %}
+{% endif %}

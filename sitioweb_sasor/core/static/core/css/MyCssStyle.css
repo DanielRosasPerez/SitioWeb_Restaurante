@@ -1,0 +1,66 @@
+/* ELEMENTOS: */
+
+form#form_orden_comida p{
+    margin: 3% 0;
+}
+
+ul.errorlist > li{ /* Para cuando establecemos una validación directamente en "models.py". NOTA: Buscar una forma de estéticar sin hacer uso de CSS. */
+    color:red;
+    font-style: italic;
+    text-align: justify;
+}
+
+/* MEDIA QUERIES */
+
+@media screen and (max-width: 992px) {
+    #row_footer {
+        margin: 40px 0px;
+    }
+}
+
+@media screen and (max-width: 770px){
+    #comprar_alimento_bebida {
+        padding-right: 6%; /*35px*/
+        padding-left: 6%;
+    }
+}
+
+@media screen and (max-width: 600px){
+    #myquery{ /* Este query es para la sección de "SERVICIOS" en el document "inicio.html". */
+        display: block !important;
+    }
+}
+
+@media screen and (max-width: 420px){
+    #contactanos_titulo {
+        font-size: 40px;
+    }
+
+    #comprar_alimento_bebida {
+        padding-right: 8%; /*35px*/
+        padding-left: 8%;
+    }
+
+    div#contenido_orden > p:nth-child(1), div#contenido_orden > p:nth-child(2) {
+        font-size: 25px !important;
+    }
+
+    div#contenido_orden > p:first-child {
+        margin-top: 6% !important;
+    }
+
+    /* div#contenido_orden > p:nth-child(3) { Dado que CSS NO ESTA RESPONDIENDO BIEN AL 3er ELEMENTO "p" debido a que se encuentra dentro de un
+        "template tag", he decidido comentar este estilo.
+        font-size: 14px !important;
+    } */
+
+    div#contenido_orden > h3:nth-child(2) {
+        font-size: 18px !important;
+    }
+    
+    div#contenido_orden > h3:first-child {
+        font-size: 18px;
+        text-align: justify !important;
+        font-family: 'Cambria Math' !important;
+    }
+}

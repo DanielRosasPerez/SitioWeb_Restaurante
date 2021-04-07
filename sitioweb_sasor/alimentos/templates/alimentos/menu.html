@@ -1,0 +1,226 @@
+{% extends 'core/base.html' %}
+
+{% load static %}
+{% load new_filters %}
+
+{% block css_hijo %}
+<link rel="stylesheet" href="{% static 'alimentos/css/CanastaFigurita_estilos.css' %}">
+{% endblock css_hijo%}
+
+{% block heading %}
+    <section class="page-heading">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <h1>Nuestros Menús</h1>
+                    <p>Bebidas, Desayunos y Comidas.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block content %}
+<style>
+    a#enlace_texto {
+        color: red;
+    }
+</style>
+
+<!-- CANASTA FIGURITA: -->
+<div style="width: 150px; float: right;">
+    <a href="{% url 'ordenes_y_pedidos_app:Canasta' %}" style="text-decoration: none;">
+        <div id="carrito_contenedor">
+            <ion-icon src="{% static 'core/img/basket-outline.svg' %}" style="display: block; font-size: 40px; color: snow;"></ion-icon>
+            <div id="canasta_y_texto" style="display: flex; align-items: center;">
+                <span id="canasta" style="color: snow;">&nbspEn Canasta:</span><br><span id="cantidad_canasta">0</span>
+            </div>
+        </div>
+    </a>
+</div>
+
+<!-- CONTENIDO: -->
+<section class="breakfast-menu" id="desayuno">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-10 col-md-offset-1">
+                <div style="padding: 30px 0px 7px 30px;" class="breakfast-menu-content">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <div class="left-image">
+                                <img src="{% static 'core/img/desayuno.jpg' %}" alt="Breakfast">
+                            </div>
+                        </div>
+                        <div class="col-md-7">
+                            <h2>Desayunos (De 9:30 a 12:00 hrs)</h2>
+                            <div id="owl-breakfast" class="owl-carousel owl-theme">
+                                {% for desayuno in desayunos %}
+                                    <div class="item col-md-12">
+                                        <div class="food-item">
+                                            <img src="{{desayuno.Imagen.url}}" alt="" height="170px" max-height="170px">
+                                            <div class="price">${{desayuno.Precio|replace_commas}}</div> <!-- Custom filter. Just replace commas. -->
+                                            <!-- <a href="{°|° url 'ordenes_y_pedidos_app:Carrito' desayuno.Slug °|°}"> -->
+                                            <div class="text-content" style="height:150px; max-height: 150px; overflow-y:auto;">
+                                                <h4>{{desayuno.Nombre}}</h4>
+                                                {{desayuno.Descripcion|markdown}}
+                                                {% with DS=Date_Time|date:'D' %} <!-- DS == Días Servicio. -->
+                                                    {% with HS=Date_Time|date:'H:i' %} <!-- HS == Horario Servicio. -->
+                                                        {% if DS != 'Sáb' and DS != 'Dom' and HS >= '09:30' and HS < '12:00' %}
+                                                        <a style="display:block; margin-bottom: 15px; font-size: 16px;" href="#/" id="enlace_texto">
+                                                            ¡Añademe a la Canasta!
+                                                        </a> <!-- Al usar "#/" en href, evitamos el salto hacia arribapor default, cada que hacemos click en dicho enlace. -->
+                                                        {% else %}
+                                                        <span style="color:#d44457; display:block; margin-bottom: 15px; font-size: 16px;">
+                                                            No disponible por el momento.
+                                                        </span>
+                                                        {% endif %}
+                                                    {% endwith%}
+                                                {% endwith %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="lunch-menu" id="comida">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-10 col-md-offset-1">
+                <div style="padding: 30px 0px 7px 30px;" class="lunch-menu-content">
+                    <div class="row">
+                        <div class="col-md-7">
+                            <h2>Comidas (De 12:00 a 18:00 hrs)</h2>
+                            <div id="owl-lunch" class="owl-carousel owl-theme">
+                                {% for comida in comidas %}
+                                    <div class="item col-md-12">
+                                        <div class="food-item">
+                                            <img src="{{comida.Imagen.url}}" alt="" height="170px" max-height="170px">
+                                            <div class="price">${{comida.Precio|replace_commas}}</div> <!-- Custom filter. Just replace commas. -->
+                                            <div class="text-content" style="height:150px; max-height: 150px; overflow-y:auto;">
+                                                <h4>{{comida.Nombre}}</h4>
+                                                {{comida.Descripcion|markdown}} <!-- Custom filter. -->
+                                                {% with DS=Date_Time|date:'D' %} <!-- DS == Días Servicio. -->
+                                                    {% with HS=Date_Time|date:'H' %} <!-- HS == Horario Servicio. -->
+                                                        {% if DS != 'Sáb' and DS != 'Dom' and HS >= '12' and HS < '18' %}
+                                                        <a style="display:block; margin-bottom: 15px; font-size: 16px;" href="#/" id="enlace_texto">
+                                                            ¡Añademe a la Canasta!
+                                                        </a> <!-- Al usar "#/" en href, evitamos el salto hacia arribapor default, cada que hacemos click en dicho enlace. -->
+                                                        {% else %}
+                                                        <span style="color:#d44457; display:block; margin-bottom: 15px; font-size: 16px;">
+                                                            No disponible por el momento.
+                                                        </span>
+                                                        {% endif %}
+                                                    {% endwith%}
+                                                {% endwith %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="left-image">
+                                <img src="{% static 'core/img/comida.jpg' %}" alt="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="dinner-menu" id="postres">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-10 col-md-offset-1">
+                <div style="padding: 30px 0px 7px 30px;" class="dinner-menu-content">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <div class="left-image">
+                                <img src="{% static 'core/img/bebidas.jpg' %}" alt="">
+                            </div>
+                        </div>
+                        <div class="col-md-7">
+                            <h2>Bebidas</h2>
+                            <div id="owl-dinner" class="owl-carousel owl-theme">
+                                {% for bebida in bebidas %}
+                                    <div class="item col-md-12">
+                                        <div class="food-item">
+                                            <img src="{{bebida.Imagen.url}}" alt="" height="170px" max-height="170px">
+                                            <div class="price">${{bebida.Precio|replace_commas}}</div> <!-- Custom filter. Just replace commas. -->
+                                            <div class="text-content" style="height:150px; max-height: 150px; overflow-y:auto;">
+                                                <h4>{{bebida.Nombre}}</h4>
+                                                {{bebida.Descripcion|markdown}} <!-- Custom filter. -->
+                                                {% with DS=Date_Time|date:'D' %} <!-- DS == Días Servicio. -->
+                                                    {% with HS=Date_Time|date:'H:i' %} <!-- HS == Horario Servicio. -->
+                                                        {% if DS != 'Sáb' and DS != 'Dom' and HS >= '09:30' and HS < '18:00' %}
+                                                        <a style="display:block; margin-bottom: 15px; font-size: 16px;" href="#/" id="enlace_texto">
+                                                            ¡Añademe a la Canasta!
+                                                        </a> <!-- Al usar "#/" en href, evitamos el salto hacia arribapor default, cada que hacemos click en dicho enlace. -->
+                                                        {% else %}
+                                                        <span style="color:#d44457; display:block; margin-bottom: 15px; font-size: 16px;">
+                                                            No disponible por el momento.
+                                                        </span>
+                                                        {% endif %}
+                                                    {% endwith%}
+                                                {% endwith %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block JSpagsHijos %}
+
+<script>
+    // // PARA RECARGAR SIEMPRE LA PÁGINA MENÚ EN LA URL PRINCIPAL, ES DECIR, QUE NO CONTENGA INFO EXTRA QUE EVITEN QUE CARGUE DE FORMA CORRECTA
+    // // JQUERY y OTRAS Implementaciones:
+
+    // var url_menu = "{% url 'alimentos_app:MenuView' %}"
+    // var current_url = window.location.href
+    // current_url = current_url.split('//')[1].split('/').slice(1)
+    // current_url.pop()
+    // console.log(current_url.length)
+    // current_url_ = '/'
+    // for(let element = 0; element < current_url.length; element++){
+    //     current_url_ += current_url[element] + '/'
+    // }
+    // console.log("NEW URL: ", current_url_)
+    // console.log("DYNAMIC URL: ", url_menu)
+    // if (new_url != url_menu){  // RECORDEMOS: ESTE JS SOLO SE ENCUENTRA EN EL "MENÚ". POR LO QUE NO
+    //     // REPRESENTA NINGÚN INCONVENIENTE CON LAS OTRAS "URLs".
+    //     window.location.replace(url_menu)
+    //     window.location.reload();
+    // }
+</script>
+
+<script src="{% static 'core/js/canasta_en_menu.js' %}" async></script>
+
+<script src="https://unpkg.com/ionicons@5.4.0/dist/ionicons.js"></script>
+
+<script>
+    if (localStorage.getItem("EVITAR_REGRESO_A_CUESTIONARIO")){
+        localStorage.clear();
+    }
+</script>
+
+{% endblock JSpagsHijos%}
+
+<!-- DATE FORMAT FOR TEMPLATE REFERENCES: -->
+<!-- https://docs.djangoproject.com/en/3.1/ref/templates/builtins/#std:templatefilter-date -->

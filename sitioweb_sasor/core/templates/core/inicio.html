@@ -1,0 +1,195 @@
+{% extends 'core/base.html' %}
+
+{% load static %}
+{% load new_filters %}
+
+{% block banner %}
+<section class="banner">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                <h4>Las comidas más ricas de todo Nicolás Romero</h4>
+                <h2 style="font-size: 40px;">Resturante Mexicano</h2>
+                <p>Sin importar que se te antoje, Sasor siempre tendrá una opción para tí.</p>
+                <div class="primary-button">
+                    <!-- A continuación, hacemos uso de enlaces tipo ancla en conjunto con el template tag {°|° url °|°}: -->
+                    <a href="{% url 'alimentos_app:MenuView' %}" data-id="book-table">Ordenar Ahora</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<!-- CONTACTO TELÉFONO Y ENLACE ANCLA A LA SECCIÓN RESEVACIÓN. -->
+<section class="cook-delecious" style="background-color: #f9fbff;">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3 col-md-offset-1">
+                <div class="first-image">
+                    <img src="{% static 'core/img/cook_01.jpg' %}" alt="">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="cook-content">
+                    <h4>Para tus eventos o reuniones</h4>
+                    <div class="contact-content">
+                        <span>Reserva con nosotros</span>
+                    </div>
+                    <span>:)</span>
+                    <div class="primary-white-button">
+                        <!-- A continuación, hacemos uso de enlaces "TIPO ANCLA" en conjunto con el template tag {°|° url °|°}: -->
+                        <a href="{% url 'reservacion_app:MesaReservacion' %}#book-table" data-id="book-table">Reservar Ahora</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="second-image">
+                    <img src="{% static 'core/img/cook_02.jpg' %}" alt="">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SERVICIOS. -->
+<section class="services" style="padding: 100px 0;">
+    <div class="container">
+        <div id="myquery" class="row" style="display:flex; justify-content:space-between;">
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="service-item">
+                    <a href="{% url 'alimentos_app:MenuView' %}#desayuno">
+                    <img src="{% static 'core/img/cook_breakfast.png' %}" alt="Breakfast">
+                    <h4>Desayuno</h4>
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="service-item">
+                    <a href="{% url 'alimentos_app:MenuView' %}#comida">
+                    <img src="{% static 'core/img/cook_lunch.png' %}" alt="Lunch">
+                    <h4>Comida</h4>
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="service-item">
+                    <a href="{% url 'alimentos_app:MenuView' %}#postres">
+                    <img src="{% static 'core/img/drinks.png' %}" alt="Desserts">
+                    <h4>Bebidas</h4>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block JSpagsHijos %}
+<!-- 
+    NOTA: NO SE PUEDE REALIZAR UNA SOLICITUDO "REQUEST" MEDIANTE "JS" Y "DJANGO" AL MISMO TIEMPO. Es decir, no pueden correr dos procesos
+    que esten haciendo solicitud "REQUEST" al mismo tiempo, ya que uno podría sobrescribir al otro y podríamos terminar con muchos errores.
+
+    NOTA 2: NO NECESARIAMENTE LOS ERRORES MOSTRADOS EN "CONSOLA" EN EL ICONITO "XHR", CUANDO MANDAMOS DATOS CON "fetch()" y "JS" SON NECESARIAMENTE
+    DE "JS". PUEDEN SER ERRORES DE PYTHON PERSE EN LA LÓGICA DE LAS "VIEWS".
+-->
+<script type="text/javascript">
+    // $(document).ready(function() {
+    //     window.onpopstate = function() {window.location.reload();}; history.pushState({}, '', '');
+    // });
+</script>
+<script type="text/javascript">
+function CrearPedido(){
+    // Creating a token to send the "POST" request:
+    console.log("FUNCIONANDO!!")
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    const csrftoken = getCookie('csrftoken');
+
+    // Recuperamos la información del pedido del cliente, antes de borrarlos en el paso posterior:
+    //localStorage.removeItem("Cantidad_Item");  // Antes de comenzar con cualquier otro procedimiento, borramos este comodín, el cual nos dice la
+    // cantidad de items que hay en la canasta.
+    var elementos_canasta = [];
+    for (var i = 0; i < localStorage.length; i++){
+        var key = localStorage.key(i)
+        elementos_canasta.push(JSON.parse(localStorage.getItem(key)));
+        console.log(JSON.parse(localStorage.getItem(key)));
+    }
+    
+    // Mandamos la información del pedido del cliente a la url deseada:
+    var url_pedidos = "{% url 'ordenes_y_pedidos_app:DatosOrden' %}"  // URL del cuestionario de pedido.
+
+    fetch(url_pedidos, {
+        method: 'POST',  // SI VAMOS A MANDAR INFORMACIÓN DE ESTA MANERA CON JS. SIEMPORE DEBEMOS USAR "POST", DE OTRO FORMA, NO SE ENVIARÁN
+        // LOS DATOS O INFORMACIÓN.
+        headers: {
+            'Content-type': 'application/json',
+            'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify({"Informacion_Pedido": elementos_canasta})
+    })
+};
+</script>
+<!-- <script>
+    window.onpopstate = function() {if(localStorage.length == 0){window.location.replace("{% url 'alimentos_app:MenuView' %}")};}; history.pushState({}, '');;
+</script> -->
+
+<script type="text/javascript" async>
+    var previous_page = document.referrer
+    console.log("PREVIOUS PAGE: ", previous_page);
+    if (previous_page == "http://127.0.0.1:8000/pedido/cuestionario_pedido/"){
+        console.log("CONDICIÓN CUMPLIDA");
+        (function (global) {
+        if(typeof (global) === "undefined") {
+            throw new Error("window is undefined");
+        }
+
+        var _hash = "!";
+        var noBackPlease = function () {
+            global.location.href += "#";
+
+            // Making sure we have the fruit available for juice (^__^)
+            global.setTimeout(function () {
+                global.location.href += "!";
+            }, 50);
+        };
+
+        global.onhashchange = function () {
+            if (global.location.hash !== _hash) {
+                global.location.hash = _hash;
+            }
+        };
+
+        global.onload = function () {
+            noBackPlease();
+
+            // Disables backspace on page except on input fields and textarea..
+            document.body.onkeydown = function (e) {
+                var elm = e.target.nodeName.toLowerCase();
+                if (e.which === 8 && (elm !== 'input' && elm  !== 'textarea')) {
+                    e.preventDefault();
+                }
+                // Stopping the event bubbling up the DOM tree...
+                e.stopPropagation();
+            };
+        }
+        })(window);
+    }
+</script>
+{% endblock JSpagsHijos %}

@@ -1,0 +1,279 @@
+{% extends 'core/base.html' %}
+
+{% load static %}
+{% load new_filters %} <!-- LOADING THE CUSTOM FILTERS. -->
+
+{% block content %}
+
+<style>
+.right-info {
+    padding: 17px 30px;
+    height: auto;
+}
+
+fieldset {
+    margin: 15px 0 5px 0;
+}
+
+.right-info input {
+    margin: 15px 0;
+}
+
+.right-info button {
+    margin-top: 0;
+}
+
+input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin: 5px 0px;
+    display: inline;
+}
+
+@media screen and (max-width: 420px){
+    .left-image > img {
+        height: auto !important;
+    }
+}
+</style>
+
+<!-- RESERVACIÓN. -->
+<section id="book-table" style="padding: 137px 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="heading">
+                    <h2>Reserva una Mesa</h2>
+            </div>
+            <div>
+            <div class="col-md-4 col-md-offset-2 col-sm-12">
+                <div class="left-image">
+                    <img src="{% static 'core/img/reservar_img_alargada.jpg' %}" alt="">
+                </div>
+            </div>
+            <div class="col-md-4 col-sm-12">
+                <div class="right-info">
+                    <h4 style="margin-bottom: 0;">Reservación</h4>
+                    {% if form.cleaned_data is None %} <!-- Si el FORM no tiene datos aún, es decir, dimos click en la pestaña de "reservación"
+                    pero aún no hacemos la reservación. -->
+                        <div style="margin: 8px 0;">
+                            <p style="color:red; margin-bottom: 0;"><b>Servicio: Lunes a Viernes de 10:00 a 18:00 hrs.</b></p>
+                            <p style="color:sandybrown; margin-bottom: 0;">Reservaciones del <b>{{Date_Time|date:'j \d\e F'}}</b> al 
+                                <b>{{Date_Time|adding_days:60|date:'j \d\e F'}}</b></p>
+                        </div>
+                    {% elif form.errors %} <!-- En caso de que existan errores en el formulario. -->
+                        <div id="errores" style="height:80px; max-height: 80px; overflow-y:auto;">
+                        {% for error in form.errors.items %}
+                            <p style="color:red; margin:10px 0 0 0; text-align:justify; font-weight:bold;">
+                                {% if error.0 == "MesasIndividuales" %}
+                                    ¡Debes seleccionar si tus mesas irán juntas o separadas! Por default, la opción "Separadas" se encuentra 
+                                    palomeada.
+                                {% else %}
+                                    {{error.1.as_text|striptags}} <!-- Realizamos Indexing en Django del item que se encuentra en la posición 1. -->
+                                {% endif %}
+                            </p> 
+                        {% endfor %}
+                        </div>
+                    <!-- En caso de que todos los campos hayan sido ingresados  y validados con éxito: -->
+                    <!-- {% elif form.is_valid and set %}
+                        <p style="color: green; margin-bottom: 0;">¡Muy bien! Solo falta que apartes tu reservación con $100 pesos. Para ello, da click
+                            <a href="{% url 'pagos_app:PayPal' %}">aquí</a>. Se te redirigirá al sitio de cobros con PayPal.</p> -->
+                    <!-- {% elif not set %}
+                        <p style="color: red; margin-bottom: 0;">Lo sentimos, <b>se agotaron las reservaciones en dicha hora, prueba con otra.</b></p> -->
+                    {% endif %}
+                    <!-- {{Date_Time|date:'H:i'|slice:"3:"}} -->
+                    <form id="form-submit" method="POST">
+                        {% csrf_token %}
+                        <div>
+                            <fieldset style="display: flex;justify-content:space-between;padding: 0px 0px 0px 15px;"> <!-- Fecha. -->
+                                <label for="hour" style="padding-top: 6px; color: #9a9a9a;">Día:</label>
+                                <input type="date" style="margin: 0;" name="Dia" min="{{Date_Time|date:'Y-m-d'}}" 
+                                max="{{Date_Time|adding_days:60|date:'Y-m-d'}}" required>
+                            </fieldset>
+                            <fieldset> <!-- Horario. -->
+                                <select required name="Horario" style="margin: 15px 0;">
+                                    <option value="">Seleccionar Hora</option>
+                                    <option value="10:00">10:00</option>
+                                    <option value="11:00">11:00</option>
+                                    <option value="12:00">12:00</option>
+                                    <option value="13:00">13:00</option>
+                                    <option value="14:00">14:00</option>
+                                    <option value="15:00">15:00</option>
+                                    <option value="16:00">16:00</option>
+                                    <option value="17:00">17:00</option>
+                                </select>
+                            </fieldset>
+                            <fieldset> <!-- Nombre de quien reserva. -->
+                                <input name="Nombre" type="text" class="form-control" id="name" autocomplete="off"
+                                placeholder="Nombre Completo" required>
+                            </fieldset> 
+                            <fieldset> <!-- Email. -->
+                                <input name="Email" type="email" class="form-control" id="email" autocomplete="off"
+                                placeholder="Email" required>
+                            </fieldset>
+                            <fieldset> <!-- Email de Verificación: -->
+                                <input name="EmailVerificacion" type="email" class="form-control" 
+                                id="email_verificacion" autocomplete="off" placeholder="Ingrese nuevamente su email" required>
+                            </fieldset>
+                            <fieldset> <!-- Celular. -->
+                                <input name="Celular" type="text" maxlength="10" class="form-control" id="celular" autocomplete="off"
+                                placeholder="Celular" required>
+                            </fieldset>
+                            <fieldset> <!-- Cantidad de Personas en la Reservación. -->
+                                <input name="Numero_Personas" type="number" class="form-control" id="personas" 
+                                autocomplete="off" placeholder="No. de Personas" min="1" max="50" required>
+                            </fieldset>
+                            <fieldset id="cuestionario_mesas_config"> <!-- Configuración de las Mesas. -->
+                                <label for="mesas_checkbox">¿Mesas juntas o separadas?</label>
+                                <div style="display: flex;">
+                                    <div style="width: 50%;">
+                                        <span style="font-weight: bold; display:block;">Juntas</span>
+                                        <input name="MesasIndividuales" type="checkbox" class="form-control" id="mesas_checkbox" value="juntas">
+                                    </div>
+                                    <div style="width: 50%;">
+                                        <span style="font-weight: bold; display:block;">Separadas</span>
+                                        <input name="MesasIndividuales" type="checkbox" class="form-control" id="mesas_checkbox" value="separadas"
+                                            checked>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <fieldset> <!-- Botón para subir el formulario. -->
+                                <button type="submit" id="form-submit" class="btn">Reservar Mesa</button>
+                            </fieldset>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block JSpagsHijos %}
+<script>
+    if(localStorage.getItem("Emails_No_Validos")){
+        localStorage.removeItem("Emails_No_Validos");
+    }
+</script>
+
+<script type="text/javascript">
+    // Para validar ambos emails:
+    document.getElementsByClassName("btn")[0].addEventListener("click", Verificacion);
+    function Verificacion(){
+        var email_1 = document.getElementById("email").value
+        var email_2 = document.getElementById("email_verificacion").value
+        if (email_1 != email_2){
+            alert("Los emails no coinciden. Por favor, vuelve a insertar tus datos :)");
+            localStorage.setItem("Emails_No_Validos", 1);
+        }
+    }
+</script>
+
+<script>
+    // Para evitar que el usuario pegue su email original en la verificación:
+    window.addEventListener('load', function() {
+    var myInput = document.getElementById('email_verificacion');
+    myInput.onpaste = function(e) {
+            e.preventDefault();
+            alert("¡Esta acción está prohibida, debe insertar la validación del correo de forma manual!");
+        }
+    });
+</script>
+
+<script>
+// DESHABILITAMOES LA RUEDA DEL MOUSE, CON LA FINALIDAD DE EVITAR UN BUG QUE NO DESENCADENA LAS FUNCIONES ATADAS A LOS EVENTOS "wheel":
+$(document).ready(function() {
+    $('input[type=number]').on('wheel',function(e){ $(this).blur(); }); 
+});
+</script>
+
+<script>
+    // Para evitar mostrar el "Cuestionario de config de las Mesas", si los usarios son <= 4 (por default, se mandará "separadas"):
+    window.addEventListener('load', redimensionar_imagen_reservacion);   // Ejecutamos la función una vez cargue el sitio. Esta, se ejecutará inmediatamente
+    // Si deseamos asignar un ÚNICO EVENTO al DOM, usamos: "window.onload = redimensionar_imagen_reservacion();".
+    document.getElementById("personas").addEventListener('click', () => {  // La función se ejecutará cada que agreguemos algún valor con
+        // el click derecho del mouse (es el único click que puede ser reconocido para aumentar valores).
+        redimensionar_imagen_reservacion();
+    });
+    document.getElementById("personas").addEventListener('keyup', () => {  // La función se ejecutará cada que agreguemos algún valor con
+        // el teclado, ya sea desde nuestro smartphone, tablet o computadora. 
+        redimensionar_imagen_reservacion();
+    });
+
+    function redimensionar_imagen_reservacion(){
+        var cantidad_personas = document.getElementById("personas").value
+        var cuestionario_mesas_config = document.getElementById("cuestionario_mesas_config")
+        var img_reservacion = document.getElementsByClassName("left-image")[0].getElementsByTagName("img")[0]
+        var errores = document.getElementById("errores")
+
+        if (cantidad_personas <= 4 || isNaN(cantidad_personas) || cantidad_personas == false) {
+            cuestionario_mesas_config.style.display = "none";
+            if (errores) {
+                img_reservacion.style.height = "740px";
+            } else {
+                img_reservacion.style.height = "716px";
+            }
+        }
+
+        else if (cantidad_personas >= 5) {
+            cuestionario_mesas_config.style.display = "block";
+            if (errores) {
+                img_reservacion.style.height = "831px";
+            } else {
+                img_reservacion.style.height = "807px";
+            }
+        }
+    };
+</script>
+
+<script>  // PARA SOLO PERMITIR SELECCIONAR UN "input[type='checkbox']":
+// The selector will match all input controls of type :checkbox
+// and attach a click event handler:
+$("input:checkbox").on('click', function() {
+  // in the handler, 'this' refers to the box clicked on:
+  var $box = $(this);
+  if ($box.is(":checked")) {
+    // the name of the box is retrieved using the .attr() method
+    // as it is assumed and expected to be immutable:
+    var group = "input:checkbox[name='" + $box.attr("name") + "']";
+    // the checked state of the group/box on the other hand will change
+    // and the current value is retrieved using .prop() method:
+    $(group).prop("checked", false);
+    $box.prop("checked", true);
+  } else {
+    $box.prop("checked", false);
+  }
+});
+
+$(document.getElementById("personas")).on('keyup', function (){  // En caso de que la persona cambie de opinión y de (por ejemplo), 8
+    // cambie a 4, por default, este evento regresará a la opción "Separadas" las mesas.
+    var cantidad_personas = document.getElementById("personas").value;
+    if (cantidad_personas <= 4 && cantidad_personas != false){
+        var default_box = $("input:checkbox")[1]  // Seleccionamos la segunda caja checkbox.
+        var group = "input:checkbox[name='" + $(default_box).attr("name") + "']";
+        $(group).prop("checked", false);
+        $(default_box).prop("checked", true)
+    }
+});
+</script>
+{% endblock%}
+
+<!-- DATE FORMAT FOR TEMPLATE REFERENCES: -->
+<!-- https://docs.djangoproject.com/en/3.1/ref/templates/builtins/#std:templatefilter-date -->
+
+<!-- MORE EXAMPLES OF CUSTOM FILTERS: -->
+
+{% comment 'EXAMPLES OF CUSTOM FILTERS' %}
+{% with tiempo=Date_Time|date:'H:i'%}
+    {% with minutos=tiempo|slice:"3:"|int_to_string %} <!-- "int_to_string" is a custom filter made by me. -->
+        {% if minutos < 30 %}
+            {% with desde=tiempo|slice:":2"|int_to_string|add:1 %} <!-- "int_to_string" is a custom filter. -->
+                {% for hora in desde|range_filter:25 %}
+                    <option value="{{hora}}">{{hora}}:00</option>
+                    {{hora}}
+                {% endfor %}
+            {% endwith %}
+        {% endif %}
+    {% endwith %}
+{% endwith %}
+{% endcomment %}
