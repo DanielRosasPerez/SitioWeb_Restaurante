@@ -89,13 +89,13 @@ def datos_pedido(request):
     message = f"¡Tu pedido se ha registrado con éxito!\nSus datos son los siguientes:\n\nPedido a nombre de:\n{Nombre}"
     message += f"\n\nElementos del Pedido:\n{detalles_pedido}\n\nPara llevar:\n{Status.upper()}"
     message += f"\n\nCosto Total del Pedido:\n${Costo_Total} MXN. {'Ya se incluyen los $15.00 MXN. Del envío.' if Status == 'sí' else ''}"
-    message += f"\n\nCorreo Sasor:\n{email_emisor}\n\nTeléfono Sasor:\n(55)58230198\n\nEN CASO DE QUE SU COMIDA NO SEA PARA LLEVAR, "
+    message += f"\n\nCorreo Sasor:\n{email_emisor}\n\nTeléfono Sasor:\n(55)58646592\n\nEN CASO DE QUE SU COMIDA NO SEA PARA LLEVAR, "
     message += "TENEMOS UN LIMITE DE ESPERA DE 2HRS. POR LO QUE, A PARTIR DE QUE REALIZA SU ORDEN TIENE 2HRS PARA ADQUIRIR SU PEDIDO."
     message += "\n\n\nMuchas gracias por su atención !Ha sido un place atenderle :)!"
 
     try:
         send_mail(subject, message, email_emisor, [email_destinatario], fail_silently=False)
-    except Exception as e:
+    except Exception:
         titular.delete()
         response = JsonResponse({"bandera": "there was an error"})
         response.status_code = 500 # To announce that the user isn't allowed to publish

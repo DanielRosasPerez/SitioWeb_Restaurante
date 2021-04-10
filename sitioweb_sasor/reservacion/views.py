@@ -208,7 +208,7 @@ def pago_completado(request):
 
     message = f"¡Tu reservación fue registrada con éxito!\nSus datos son los siguientes:\n\nReservación a nombre de:\n{body['Nombre']}"
     message += f"\n\nReservación para el:\n{fecha_reservacion}\n\nCosto de la Reservación:\n${body['Costo']} MXN. (El cargo ya ha sido cubierto)."
-    message += f"\n\nNúmero de Personas: {body['Numero_Personas']}\n\nCorreo Sasor:\n{email_emisor}\n\nTel. Sasor:\n(55)58230198"
+    message += f"\n\nNúmero de Personas: {body['Numero_Personas']}\n\nCorreo Sasor:\n{email_emisor}\n\nTel. Sasor:\n(55)58646592"
     if int(body['Numero_Personas']) >= 5:
         message += f"\n\nConfiguración de las Mesas:\n{body['MesasIndividuales'].title()}"
     message += f"\n\n\nNOTA:\n{Nota}\n\n\n¡Ha sido un placer atenderle :)!"
