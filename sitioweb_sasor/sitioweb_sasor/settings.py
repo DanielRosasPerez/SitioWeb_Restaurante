@@ -161,6 +161,6 @@ CKEDITOR_CONFIGS = {  # Para más opciones de configuración, googlear "django c
 # CONFIGURACIÓN SMTP SERVER PARA MANDAR Y RECIBIR EMAILS:
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_HOST_USER = "<tu_correo>@gmail.com"
-EMAIL_HOST_PASSWORD = "<tu_contraseñ>"
+EMAIL_HOST_PASSWORD = "<tu_contraseña>"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
