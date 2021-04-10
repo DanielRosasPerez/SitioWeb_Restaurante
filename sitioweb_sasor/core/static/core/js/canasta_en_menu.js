@@ -6,7 +6,8 @@ AgregarEventoAEnlaces();  // Agregamos un evento "onclick" al enlace, para poder
 ItemsEnCanasta();  // Siempre que se cargue la página del "Menú", se cargarán los items (si hay), cargados con aterioridad en casta.
 
 VerificandoCanasta();  // Para verificar que productos ya se encuentran en la canasta y deshabilitarlos de nueva cuenta, en caso de refrescar la
-// página o irse a otra pestaña y después regresar al menú.
+// página o irse a otra pestaña y después regresar al menú. Además, limpiamos la canasta en caso de que exista algún platillo o bebida guardados
+// pertenecientes a días previos.
 
 function ItemsEnCanasta(){  // En caso de que ya existan items en la canasta, recuperaremos la cantidad total para mostrarlos. De esta forma si
     // el usuario cambia de pestaña o recarga la página del Ménu, se seguirán mostrando la cantidad total de items en canasta.
@@ -117,12 +118,30 @@ function VerificandoCanasta(){  // Siempre que refresquemos la pág o cambiemos 
     }
     for (let i = 0; i < localStorage.length; i++){
         let elemento_en_canasta = JSON.parse(localStorage.getItem(localStorage.key(i)));
-        if (nombre_items.includes(elemento_en_canasta.id)){
+        if (nombre_items.includes(elemento_en_canasta.id)) {
             // Usamos "xpath" para localizar los elementos que ya han sido agregados a la página:
             let xpath = `//div[@class='text-content']/h4[text()='${elemento_en_canasta.id}']`
             let ElementoHallado = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-            ElementoHallado.parentElement.getElementsByTagName('a')[0].innerText = "Ya en Canasta :)";
-            ElementoHallado.parentElement.getElementsByTagName('a')[0].style = "pointer-events: none;";
+
+            let Enlaces_Añadir_Canasta = ElementoHallado.parentElement.getElementsByTagName('a')[0]
+            if (Enlaces_Añadir_Canasta != undefined){  // Para evitar errores si es que se encuentra un alimento a una hora no disponible.
+                // Dado que ya no existen más enlaces 'a', sino se sustituyen por 'span'.
+                Enlaces_Añadir_Canasta.innerText = "Ya en Canasta :)"
+                Enlaces_Añadir_Canasta.style = "pointer-events: none;";
+            }
+
+            // En caso de que dentro de la canasta se encuentre algún desayuno y ya sean las 13:00, se eliminará:
+            if (ElementoHallado.parentElement.getElementsByTagName('span').length > 0) {  // Es decir, que existe la etiqueta span.
+                localStorage.removeItem(elemento_en_canasta.id)
+            }
+        } 
+        
+        if (nombre_items.includes(elemento_en_canasta.id) == false) {  // Si el nombre del platillo dentro de la canasta, no corresponde
+            // con algún nombre de platillo que se ofrece el día de hoy, se eliminará:
+
+            localStorage.removeItem(elemento_en_canasta.id)  // Dado que el único elemento en "AL" que contiene key "id" son los platillos,
+            // cada que nos topemos con, por ejemplo, el diccionario JSON "Cliente_id", este no se eliminará dado que "elemento_en_canasta.id"
+            // será igual a "undefined", y dado que el elemento "undefined" no existe, no se eliminará nada :).
         }
     }
 }

@@ -31,7 +31,7 @@ class OrdenCliente(models.Model):
     class Meta:
         verbose_name = "Orden"
         verbose_name_plural = "1.Ordenes"
-        ordering = ["created_at"]  # Ordenamos de la orden más antigua a la más reciente.
+        ordering = ["-created_at"]  # Ordenamos de la orden más antigua a la más reciente.
 
     def __str__(self):
         return self.Nombre

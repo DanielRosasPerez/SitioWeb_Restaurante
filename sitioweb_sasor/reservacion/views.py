@@ -10,7 +10,8 @@ import pytz, math, json
 
 from django.db.models import Count
 from itertools import groupby
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
+from django.urls import reverse_lazy
 
 # Funciones para crear reservaciones, traducir el nombre de los meses y calcular las mesas a ocupar por cada reservación:
 
@@ -173,6 +174,7 @@ def mesa_reservacion(request):
     return render(request, "reservacion/mesa_reservar.html", {"Date_Time": Date_Time, "form": form_reservacion})
 
 
+from django.contrib import messages
 def pago_completado(request):
     body = json.loads(request.body)  # Recuperamos los datos contenidos en body.
 
@@ -196,12 +198,13 @@ def pago_completado(request):
     fecha_reservacion = formato_fecha_reservacion.strftime(f"%d de {mes_en_español} del %Y a las %H:%M hrs")
 
     # Email receptor y emisor:
-    email_emisor = "cafesasor@gmail.com"
+    email_emisor = "daniel020197ss@gmail.com"
     email_destinatario = body["Email"]
 
     # Mensaje:
     Nota = "Si demora más de 35 minutos en su reservación, Café Sasor volverá a habilitar la(s) mesa(s) para atender a los clientes que lleguen"
-    Nota += " al restaurante. Por su atención, gracias."
+    Nota += "\nal restaurante.\nSi desea cancelar su reservación, hágalo con 3 o más días anticipación, de lo contrario, no habrá ningun reembolso."
+    Nota += "\nPor su atención, gracias."
 
     message = f"¡Tu reservación fue registrada con éxito!\nSus datos son los siguientes:\n\nReservación a nombre de:\n{body['Nombre']}"
     message += f"\n\nReservación para el:\n{fecha_reservacion}\n\nCosto de la Reservación:\n${body['Costo']} MXN. (El cargo ya ha sido cubierto)."
@@ -210,8 +213,24 @@ def pago_completado(request):
         message += f"\n\nConfiguración de las Mesas:\n{body['MesasIndividuales'].title()}"
     message += f"\n\n\nNOTA:\n{Nota}\n\n\n¡Ha sido un placer atenderle :)!"
 
-    send_mail(subject, message, email_emisor, [email_destinatario], fail_silently=False)
+    try:
+        send_mail(subject, message, email_emisor, [email_destinatario], fail_silently=False)
+    except Exception:
+        # mensaje_error = "Hola, SU RESERVACIÓN NO HA SIDO AGENDADA, por favor, NOTIFIQUE AL RESTAURANTE SASOR QUE LA CUENTA DE CORREO NO SE ENCUENTRA"
+        # mensaje_error += "\nFUNCIONANDO CORRECTAMENTE.\nEl teléfono de atención se encuentra en la pestaña 'CONTACTANOS'.\nDisculpe las molestias."
+        # messages.warning(request, mensaje_error)
 
-    return JsonResponse("¡EL PEDIDO SE REALIZÓ CON ÉXITO!", safe=False)  # NOTA: Dado que estoy ocupando JS para redireccionarnos de forma 
+        # NO ELIMINAREMOS LA RESERVACIÓN DE LA BD, DEBIDO A QUE EL CARGO POR "PAYPAL" YA SE HA EFECTUADO. ADEMÁS, LO ÚNICO QUE DEBE HACER EL CLIENTE
+        # ES MARCAR PARA QUE SE LE PUEDAN BRINDAR SUS RESPECTIVOS DATOS CORRECTAMENTE:
+        # reservacion_a_eliminar = Reservacion.objects.filter(Nombre=body["Nombre"]).filter(Email=body["Email"])
+        # reservacion_a_eliminar = reservacion_a_eliminar[len(reservacion_a_eliminar)-1]
+        # reservacion_a_eliminar.delete()
+
+        response = JsonResponse({"bandera": "there was an error"})
+        response.status_code = 500 # To announce that the user isn't allowed to publish
+        return response
+
+    response = JsonResponse({"bandera": "LA RESERVACIÓN SE REALIZÓ CON ÉXITO"})
+    return response  # NOTA: Dado que estoy ocupando JS para redireccionarnos de forma 
     # directa a la vista "Home", no tiene caso retornar algún valor. Sin embargo, para evitar errores, retornamos una JsonResponse(),
     # esto solo se hace en este tipo de casos, en cualquier otro, SIEMPRE DEBEMOS RETORNAR ALGO, DADO QUE SE TRATA DE UNA VISTA.

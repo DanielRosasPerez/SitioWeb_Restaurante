@@ -106,6 +106,14 @@
 
     <!-- JAVASCRIPT PRINCIPAL (DEBE ESTAR CONTENIDO EN LA PÁG PRINCIPAL, COMO EN CUALQUIER PÁGINA HIJO). -->
     {% block JSscripts %}
+    <script async>
+        // EN CASO DE QUE PROVENGAMOS DE UNA PÁGINA DISTINTA AL DOMINIO PRINCIPAL, LIMPIAREMOS TODO EL "LOCAL STORAGE":
+        var previous_website = document.referrer
+        if (previous_website == ""){
+            localStorage.clear();
+        }
+    </script>
+
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <script>window.jQuery || document.write('<script src="{% static "core/js/vendor/jquery-1.11.2.min.js" %}"><\/script>')</script>
 
@@ -151,12 +159,28 @@
         };
     }
     </script>
+
     <script>
         var url_actual = window.location.href;
         var url_reservacion = "{% url 'reservacion_app:MesaReservacion' %}";
         if(localStorage.getItem("BANDERA_PAYPAL") &&  url_actual.search(url_reservacion) == -1){
             localStorage.clear();
         };
+    </script>
+    
+    <script>
+        var current_page = window.location.href
+        var sitio_cuestionario = "{% url 'ordenes_y_pedidos_app:CuestionarioPedido' %}"
+        var sitio_inicio = "{% url 'core_app:Home' %}"
+        // Si la pág actual es diferente de la pág "cuestionario" O "inicio", se borrará la bandera "EVITAR_REGRESO_A_CUESTIONARIO":
+        if (localStorage.getItem("EVITAR_REGRESO_A_CUESTIONARIO")){
+            if (current_page.search(sitio_inicio) != -1 || current_page.search(sitio_cuestionario) != -1){  // "-1" significa que que la
+                // cadena dentro del método "search()", no se encuentra dentro de la cadena current_page.
+                // Si nos encontramos dentro de "Inicio" O "Cuestionario de Pedido", NO HAGAS NADA.
+            } else {  // Por otro lado, si nos encontramos dentro de cualquier otra página, borra dicha bandera.
+                localStorage.removeItem("EVITAR_REGRESO_A_CUESTIONARIO");
+            }
+        }
     </script>
     {% endblock JSscripts %}
 

@@ -68,7 +68,8 @@
                                                         {% if DS != 'Sáb' and DS != 'Dom' and HS >= '09:30' and HS < '12:00' %}
                                                         <a style="display:block; margin-bottom: 15px; font-size: 16px;" href="#/" id="enlace_texto">
                                                             ¡Añademe a la Canasta!
-                                                        </a> <!-- Al usar "#/" en href, evitamos el salto hacia arribapor default, cada que hacemos click en dicho enlace. -->
+                                                        </a> <!-- Al usar "#/" en href, evitamos el salto hacia arriba dado por default,
+                                                             cada que hacemos click en dicho enlace. -->
                                                         {% else %}
                                                         <span style="color:#d44457; display:block; margin-bottom: 15px; font-size: 16px;">
                                                             No disponible por el momento.
@@ -172,6 +173,9 @@
                                                         {% endif %}
                                                     {% endwith%}
                                                 {% endwith %}
+                                                <!-- <a style="display:block; margin-bottom: 15px; font-size: 16px;" href="#/" id="enlace_texto">
+                                                    ¡Añademe a la Canasta!
+                                                </a> -->
                                             </div>
                                         </div>
                                     </div>

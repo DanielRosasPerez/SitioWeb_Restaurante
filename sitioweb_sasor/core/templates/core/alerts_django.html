@@ -1,10 +1,10 @@
-{% if messages %}
+<!-- {°|° if messages °|°}
     <ul class="messages" id="msg">
-        {% for message in messages %}
-        <li {% if message.tags %} class="alert alert-{{message.tags}}" style="margin-bottom: 0; text-align: center" {% endif %}>{{message}}</li>
-        {% endfor %}
+        {°|° for message in messages °|°}
+        <li {°|° if message.tags °|°} class="alert alert-{{message.tags}} {{message.tags}}" style="margin-bottom: 0; text-align: center" {°|° endif °|°}>{{message}}</li>
+        {°|° endfor °|°}
     </ul>
-{% block JSpagsHijos %}
+{°|° block JSpagsHijos °|°} -->
 <!-- <script>
     setTimeout(function(){
         if ($("#msg").length > 0){
@@ -13,21 +13,54 @@
     }, 10000)  // Tiempo en "ms".
 </script> -->
 
-<script>
-    if (document.readyState == 'loading') {
-    document.addEventListener('DOMContentLoaded', ready);
-    } else {
-        ready();
-    }
-    function ready(){
-        CrearPedido();  // Esta función se encuentra declarada dentro de los tags "script" en "inicio.html".
-        localStorage.clear();  // Terminando de mandar la información a la BD, se limpia el "almacenamiento local".
-        history.pushState({}, '');
-        localStorage.setItem('EVITAR_REGRESO_A_CUESTIONARIO', 1);
-    }
+{% if messages %}
+    <ul class="messages" id="msg"></ul>
+    {% for message in messages %}
+        <li {% if message.tags %} class="alert alert-{{message.tags}} {{message.tags}}" style="margin-bottom: 0; text-align: justify" {% endif %}>
+            {{message}}
+        </li>
+    {% endfor %}
+    </ul>
+{% endif %}
 
-    // NOTA: POR ALGUNA RAZÓN, NO SE PUEDE DECLARAR DE MANERA FORMAL LA ETIQUETA "script" EN LOS COMENTARIOS PORQUE APARECEN ERRORES.
+{% block JSpagsHijos %}
+<script>
+    // if (document.readyState == 'loading') {
+    // document.addEventListener('DOMContentLoaded', ready);
+    // } 
+    // else {
+    //     ready();
+    // }
+
+    // function ready(){
+    //     var previous_page = document.referrer
+    //     console.log("PREVIOUS PAGE (ALERTS): ", previous_page);
+    //     if (previous_page == "http://127.0.0.1:8000/pedido/cuestionario_pedido/"){  // https://danielrosasperez.pythonanywhere.com/pedido/cuestionario_pedido/
+    //         ejecutar_subfunciones();
+    //     }
+    // }
+
+    // function ejecutar_subfunciones(){
+    //     var operacion_pedido = CrearPedido();  // Esta función se encuentra declarada dentro de los tags "script" en "inicio.html".
+    //     operacion_pedido.then(resultado => {
+    //         console.log("RESULTADO: ",resultado)
+    //         if (resultado == false) {
+    //             var mensaje_alerta = "¡Lamentamos informarle que SU ORDEN NO HA SIDO REGISTRADA. Esto se debe a que el correo del Sasor no " 
+    //             mensaje_alerta += "esta funcionando de forma correcta. Por favor, REPORTELO, se lo agradeceremos mucho :)."
+    //             alert(mensaje_alerta)
+    //             window.location.replace("{% url 'contacto_app:Contacto' %}")
+
+    //         } else {
+    //             alert("¡Su orden ha sido registrada exitosamente! En breve recibirá un correo con los datos de la misma. Gracias :).")
+    //             window.location.replace("{% url 'core_app:Home' %}")
+    //         }
+    //     });
+    //     //localStorage.clear();  // Terminando de mandar la información a la BD, se limpia el "almacenamiento local".
+    //     history.pushState({}, '');
+    //     //localStorage.setItem('EVITAR_REGRESO_A_CUESTIONARIO', 1);
+    // }
+
+    // NOTA: POR ALGUNA RAZÓN, NO SE PUEDE DECLARAR DE MANERA EXPLÍCITA LA ETIQUETA "script" EN LOS COMENTARIOS, PORQUE APARECEN ERRORES.
     
 </script>
 {% endblock JSpagsHijos %}
-{% endif %}

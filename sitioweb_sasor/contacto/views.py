@@ -13,8 +13,8 @@ def contacta_con_nosotros(request):
             subject = "Nuevo Mensaje de Cliente"
             message = f"Cliente: {data['Nombre']}\nEmail: {data['Email']}\nCelular: {data['Celular'] if data['Celular'] else 'No especificado'}\
                 \nMensaje: {data['Mensaje']}"
-            email_emisor = "cafesasor@gmail.com"
-            email_destinatario = "cafesasor@gmail.com"
+            email_emisor = "daniel020197ss@gmail.com"
+            email_destinatario = "daniel020197ss@gmail.com"
             send_mail(subject, message, email_emisor, [email_destinatario])
             return redirect(reverse("contacto_app:Contacto")+"?ok")
         else:

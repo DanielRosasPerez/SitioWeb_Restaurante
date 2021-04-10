@@ -71,6 +71,12 @@ DE LA PÁGINA BASE: -->
     }
 </script>
 
+<script async>
+    if (localStorage.getItem("EVITAR_REGRESO_A_CUESTIONARIO") || localStorage.length == 0){
+        window.location.replace("{% url 'core_app:Home' %}");
+    }
+</script>
+
 <script>
     document.getElementsByClassName("btn-primary")[0].setAttribute("onclick", "Datos_Cliente()");
 
@@ -84,14 +90,10 @@ DE LA PÁGINA BASE: -->
 </script>
 
 <script>
-    // De esta forma, evitamos que el usuario pase directamente a la canasta y por ende, se le redirige al menú.
-    window.onpopstate = function() {window.location.replace("{% url 'alimentos_app:MenuView' %}");}; history.pushState({}, '');;
-</script>
-
-<script>
-    if (localStorage.getItem("EVITAR_REGRESO_A_CUESTIONARIO")){
-        window.history.back();
-    }
+     $(document).ready(function() {
+        // De esta forma, evitamos que el usuario pase directamente a la canasta y por ende, se le redirige al menú.
+        window.onpopstate = function() {window.location.replace("{% url 'alimentos_app:MenuView' %}");}; history.pushState({}, '');;
+     });
 </script>
 
 <script>

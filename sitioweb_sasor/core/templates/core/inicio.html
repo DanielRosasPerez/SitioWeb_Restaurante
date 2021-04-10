@@ -9,7 +9,7 @@
         <div class="row">
             <div class="col-md-6 col-md-offset-3">
                 <h4>Las comidas más ricas de todo Nicolás Romero</h4>
-                <h2 style="font-size: 40px;">Resturante Mexicano</h2>
+                <h2 style="font-size: 40px;">Restaurante Mexicano</h2>
                 <p>Sin importar que se te antoje, Sasor siempre tendrá una opción para tí.</p>
                 <div class="primary-button">
                     <!-- A continuación, hacemos uso de enlaces tipo ancla en conjunto con el template tag {°|° url °|°}: -->
@@ -96,11 +96,61 @@
     DE "JS". PUEDEN SER ERRORES DE PYTHON PERSE EN LA LÓGICA DE LAS "VIEWS".
 -->
 <script type="text/javascript">
+    // Para Firefox:
     // $(document).ready(function() {
-    //     window.onpopstate = function() {window.location.reload();}; history.pushState({}, '', '');
+    //     var previous_page = document.referrer
+    //     console.log("PREVIOUS PAGE (INICIO): ", previous_page);
+    //     // Una vez se manda el pedido por correo, el sitio vuelve a cargar, por lo que, la pág previa sería "inicio" en lugar del "cuestionario":
+    //     if (previous_page == "http://127.0.0.1:8000/"){  // https://danielrosasperez.pythonanywhere.com/
+    //         window.onpopstate = function() {window.location.reload();}; history.pushState({}, '', '');
+    //     }
     // });
 </script>
-<script type="text/javascript">
+<script type="text/javascript" async>
+$(document).ready(function () {
+    todo_ready();
+})
+
+function todo_ready(){  // Si venimos de dar click en el botón del formulario para realizar nuestro pedido, procedemos a llamar a la función
+    // que crea el pedido en la BD:
+    var previous_page = document.referrer
+    console.log("PREVIOUS PAGE (ALERTS): ", previous_page);
+    var url_pedido_cuestionario = "{% url 'ordenes_y_pedidos_app:CuestionarioPedido' %}"
+    if (previous_page.search(url_pedido_cuestionario) != -1 && localStorage.getItem("Cliente_id")) { // "-1" significa que la cadena tal cual está escrita dentro del método 
+    // search(), se encuentra dentro de "previous_page".
+        ejecutar_subfunciones();
+    }
+}
+
+function ejecutar_subfunciones(){
+    var operacion_pedido = CrearPedido();  // Esta función se encuentra declarada dentro de los tags "script" en "inicio.html".
+    operacion_pedido.then(resultado => {
+        console.log("RESULTADO: ",resultado)
+        if (resultado == false) {
+            var mensaje_alerta = "¡Lamentamos informarle que SU ORDEN NO HA SIDO REGISTRADA. Esto se debe a que el correo del Sasor no " 
+            mensaje_alerta += "está funcionando de forma correcta. Por favor, REPORTELO, se lo agradeceremos mucho :)."
+            alert(mensaje_alerta)
+            window.location.replace("{% url 'contacto_app:Contacto' %}")
+        } else if (resultado == "Diccionario Items Vacío.") {
+            window.location.replace("{% url 'core_app:Home' %}")
+        } 
+        else {
+            var mensaje_alerta = "¡SU ORDEN HA SIDO REGISTRADA EXITOSAMENTE! En breve recibirá un correo con los datos de la misma. Gracias :)."
+            mensaje_alerta += "\nA continuación, la página se refrescará por sí sola, por favor, espere."
+            alert(mensaje_alerta);
+            function sleep(delay) {  // Para dormir de forma manual y esperar a que la orden se realice correctamente.
+                var start = new Date().getTime();
+                while (new Date().getTime() < start + delay);
+            }
+            sleep(2000); // Dormimos por 2s.
+            window.location.replace("{% url 'core_app:Home' %}")
+        }
+    });
+    //localStorage.clear();  // Terminando de mandar la información a la BD, se limpia el "almacenamiento local".
+    history.pushState({}, '');
+    //localStorage.setItem('EVITAR_REGRESO_A_CUESTIONARIO', 1);
+}
+
 function CrearPedido(){
     // Creating a token to send the "POST" request:
     console.log("FUNCIONANDO!!")
@@ -131,11 +181,14 @@ function CrearPedido(){
         elementos_canasta.push(JSON.parse(localStorage.getItem(key)));
         console.log(JSON.parse(localStorage.getItem(key)));
     }
-    
+
+    localStorage.clear();  // Una vez rescatamos la información del pedido en la lista "elementos_canasta", procedemos a vaciar el "AL".
+    localStorage.setItem('EVITAR_REGRESO_A_CUESTIONARIO', 1);  // Agregamos una bandera para redireccionar a otra pestaña en caso de que se intente
+    // regresar al cuestionario.
     // Mandamos la información del pedido del cliente a la url deseada:
     var url_pedidos = "{% url 'ordenes_y_pedidos_app:DatosOrden' %}"  // URL del cuestionario de pedido.
 
-    fetch(url_pedidos, {
+    return fetch(url_pedidos, {
         method: 'POST',  // SI VAMOS A MANDAR INFORMACIÓN DE ESTA MANERA CON JS. SIEMPORE DEBEMOS USAR "POST", DE OTRO FORMA, NO SE ENVIARÁN
         // LOS DATOS O INFORMACIÓN.
         headers: {
@@ -144,13 +197,26 @@ function CrearPedido(){
         },
         body: JSON.stringify({"Informacion_Pedido": elementos_canasta})
     })
+    .then(response => response.json())
+    .then(datos => {
+        if (datos.bandera == "there was an error") {
+            return false; // "El correo de sasor no está funcionando, es decir, probablemente google prohibio el accesso de apps
+            // poco seguras a nuestro correo".
+        } else if (datos.bandera == "el diccionario items no tiene nada"){
+            return "Diccionario Items Vacío."
+        }
+        else {
+            return true;
+        }
+    });
 };
 </script>
+
 <!-- <script>
     window.onpopstate = function() {if(localStorage.length == 0){window.location.replace("{% url 'alimentos_app:MenuView' %}")};}; history.pushState({}, '');;
 </script> -->
 
-<script type="text/javascript" async>
+<!-- <script type="text/javascript" async>
     var previous_page = document.referrer
     console.log("PREVIOUS PAGE: ", previous_page);
     if (previous_page == "http://127.0.0.1:8000/pedido/cuestionario_pedido/"){
@@ -191,5 +257,5 @@ function CrearPedido(){
         }
         })(window);
     }
-</script>
+</script> -->
 {% endblock JSpagsHijos %}

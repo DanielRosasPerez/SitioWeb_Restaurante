@@ -27,7 +27,14 @@
         Nota:<br>Por favor, se serio con tus pedidos. Como establecimiento, evitamos el uso de métodos de pago por internet para este servicio. 
         De esta forma, facilitamos el proceso. ¡Muchas Gracias! :)
     </p>
-    <button class="btn btn-primary btn-purchase" type="button">ORDENAR</button>
+    <!-- Solo habilitamos el botón de Lunes a Viernes, de 9:30 a 18:00 hrs: -->
+    {% with DS=Date_Time|date:'D' %}
+        {% with HS=Date_Time|date:'H:i' %}
+            {% if DS != 'Sáb' and DS != 'Dom' and HS >= '09:30' and HS < '18:00' %}
+                <button class="btn btn-primary btn-purchase" type="button">ORDENAR</button>
+            {% endif %}
+        {% endwith %}
+    {% endwith %}
 </section>
 {% endblock %}
 

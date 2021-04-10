@@ -41,8 +41,13 @@
     </script>
 
     <!-- Include the PayPal JavaScript SDK -->
+    
     <!-- PAYPAL REAL: -->
-    <!-- <script src="https://www.paypal.com/sdk/js?client-id=AU7xOW4COPPiEtwa0e9gtpq7tinkJoAALUiSbzKBge5763VQxGVqx-QcoytQ8Z5XlVbaabiWQzeNP4TO&currency=MXN&disable-funding=card"></script> -->
+    <!-- Con tarjeta: -->
+    <!-- <script src="https://www.paypal.com/sdk/js?client-id=AU7xOW4COPPiEtwa0e9gtpq7tinkJoAALUiSbzKBge5763VQxGVqx-QcoytQ8Z5XlVbaabiWQzeNP4TO&currency=MXN" data-sdk-integration-source="button-factory"></script> -->
+    <!-- Sin tarjeta: -->
+    <!-- <script src="https://www.paypal.com/sdk/js?client-id=AU7xOW4COPPiEtwa0e9gtpq7tinkJoAALUiSbzKBge5763VQxGVqx-QcoytQ8Z5XlVbaabiWQzeNP4TO&currency=MXN&disable-funding=card" data-sdk-integration-source="button-factory"></script> -->
+    
     <!-- PAYPAL SANDBOX: -->
     <script src="https://www.paypal.com/sdk/js?client-id=Ad9-OlEen6Pmng0TI_kCb2uqNplQxhvAFrRDQjGIDklRy3M9jRcRd6sEMq7Se5M9MUNDjukHUqxYZ5_t&currency=MXN" data-sdk-integration-source="button-factory"></script>
     
@@ -51,6 +56,7 @@
         var total = "{{Costo_Reservacion}}"  // Costo de la reservación en PESOS MEXICANOS.
         var url_to_be_redirected = "{% url 'core_app:Home' %}"  // Una vez se haya realizado el pago, y se haya desplegado el prompt "alert", con
         // el mensaje de "Transacción Completada con Éxito por: <nombre_de_la_cuenta>", se nos mandará directamente a la página de INICIO.
+        var url_to_contactanos = "{% url 'contacto_app:Contacto' %}"
 
         // Creating a token to send the "POST" request:
         function getCookie(name) {
@@ -83,7 +89,7 @@
             var Mesas_a_Ocupar = "{{Mesas_a_Ocupar}}"
             var MesasIndividuales = "{{MesasIndividuales}}"
 
-            fetch(url, {
+            return fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-type': 'application/json',
@@ -92,6 +98,15 @@
                 body: JSON.stringify({"Nombre": Nombre, "Dia": Dia, "Numero_Personas": Numero_Personas, "Email": Email, "Celular": Celular, 
                 "Horario": Horario, "Costo": total, "Mesas_a_Ocupar": Mesas_a_Ocupar, "MesasIndividuales": MesasIndividuales})
             })
+            .then(response => response.json())
+            .then(data => {
+                if (data.bandera == "there was an error") {
+                    return false; // "El correo de sasor no está funcionando, es decir, probablemente google prohibio el accesso de apps
+                    // poco seguras a nuestro correo".
+                } else {
+                    return true;
+                }
+            });
         }
 
         // Render the PayPal button into #paypal-button-container
@@ -120,17 +135,31 @@
             onApprove: function(data, actions) {
                 return actions.order.capture().then(async function(details) {
                     // Show a success message to the buyer
-                    completeOrder()
-                    alert('¡TRANSACCIÓN COMPLETADA CON ÉXITO!\nGracias por reservar con nosotros.\
-                    \nEN LOS PRÓXIMOS MINUTOS RECIBIRÁ UN CORREO CON LOS DATOS DE SU RESERVACIÓN :)');
-                    localStorage.clear();  // Limpiamos el "Almacenamiento Local", ya que paypal crea un diccionario en donde guarda los datos.
-                    window.location.replace(url_to_be_redirected)  // Nos redireccionamos directamente a la vista "Home".
+                    var transaccion_exitosa = completeOrder()
+                    transaccion_exitosa.then(resultado => {
+                        console.log("RESULTADO: ",resultado)
+                        if (resultado == true) {
+                        alert('¡TRANSACCIÓN COMPLETADA CON ÉXITO!\nGracias por reservar con nosotros.\
+                        \nEN LOS PRÓXIMOS MINUTOS RECIBIRÁ UN CORREO CON LOS DATOS DE SU RESERVACIÓN :)');
+                        localStorage.clear();  // Limpiamos el "Almacenamiento Local", ya que paypal crea un diccionario en donde guarda los datos.
+                        window.location.replace(url_to_be_redirected)  // Nos redireccionamos directamente a la vista "Home".
+                        } else {
+                            var mensaje_alerta = "Se ha efectuado el cargo de manera éxitosa, por lo que ¡Su reservación ha sido agendada con éxito!"
+                            mensaje_alerta += "\nSin embargo, lamentamos informarle que EL CORREO DEL SASOR NO SE ENCUENTRA FUNCIONANDO ADECUADAMENTE."
+                            mensaje_alerta += "\nPor lo que no recibirá ningun correo con los datos de su reservación."
+                            mensaje_alerta += "\nPor esta razón le pedimos de favor, se comunique con nosotros para hacerle llegar sus datos. Gracias :)"
+                            alert(mensaje_alerta)
+                            localStorage.clear();  // Limpiamos el "Almacenamiento Local", ya que paypal crea un diccionario en donde guarda los datos.
+                            window.location.replace(url_to_contactanos)
+                        }
+                        //localStorage.clear();  // Limpiamos el "Almacenamiento Local", ya que paypal crea un diccionario en donde guarda los datos.
+                    });
                 });
             },
 
             onError: function(err) { // En caso de que la transacción no se haya realizado de forma correcta.
                 alert("Algo salio mal durante la transacción. Serás redirigido a la página de inicio.")
-                alert("Recuerda que NO SE TE HA COBRADO NINGÚN CARGO. Por favor realiza nuevamente la reservación.")
+                alert("Recuerda que NO SE TE HA COBRADO NINGÚN CARGO. Por favor REALIZA NUEVAMENTE LA RESERVACIÓN.")
                 localStorage.clear();
                 window.location.replace(url_to_be_redirected)  // Nos redireccionamos directamente a la vista "Home".
                 console.log(err);
